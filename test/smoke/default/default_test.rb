@@ -16,3 +16,37 @@ end
 describe port(80), :skip do
   it { should_not be_listening }
 end
+
+describe package('java-1.7.0-openjdk-devel') do
+  it { should be_installed }
+end
+
+describe service('tomcat') do
+  it { should be_enabled }
+  it { should be_running }
+end
+
+describe port('8080') do
+  it { should be_listening }
+end
+
+describe port('8443') do
+  it { should be_listening }
+end
+
+describe port('8009') do
+  it { should be_listening }
+end
+
+describe group('tomcat') do
+  it { should exist }
+  it { should be_local }
+end
+
+describe user('tomcat') do
+  it { should exist}
+  its('group') { should eq 'tomcat'}
+  its('shell') { should eq '/bin/nologin'}
+  its('home') { should eq '/opt/tomcat' }
+end
+
