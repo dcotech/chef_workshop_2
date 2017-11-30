@@ -26,21 +26,20 @@ describe service('tomcat') do
   it { should be_running }
 end
 
-describe port('8080') do
+describe port('8080'), :skip do
   it { should be_listening }
 end
 
-describe port('8443') do
+describe port('8443'), :skip do
   it { should be_listening }
 end
 
-describe port('8009') do
+describe port('8009'), :skip do
   it { should be_listening }
 end
 
 describe group('tomcat') do
   it { should exist }
-  it { should be_local }
 end
 
 describe user('tomcat') do
