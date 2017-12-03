@@ -14,13 +14,12 @@ user 'tomcat' do
 end
 
 group 'tomcat' do
-  action [:create, :modify]
   members 'tomcat'
   append true
 end
 
-remote_file '/tmp/apache-tomcat-8.5.23.tar.gz' do
-  source 'http://apache.mirrors.pair.com/tomcat/tomcat-8/v8.5.23/bin/apache-tomcat-8.5.23.tar.gz'
+cookbook_file '/tmp/apache-tomcat-8.5.24.tar.gz' do
+  source 'apache-tomcat-8.5.24.tar.gz'
   owner 'tomcat'
   group 'tomcat'
   mode '0755'
@@ -43,41 +42,18 @@ bash 'update permissions' do
     sudo chmod g+x conf
     sudo chown -R tomcat webapps/ work/ temp/ logs/
   EOH
+  not_if { ::File.exist?('/etc/systemd/system/tomcat.service') }
 end
 
-systemd_unit 'tomcat.service' do
-  content({
-     Unit: {
-       Description: 'Apache Tomcat Web Application Container',
-       After: 'network.target',
-     },
-     Service: {
-       Type: 'forking',
-       ExecStart: '/usr/local/etcd',
-       Environment: 'JAVA_HOME=/usr/lib/jvm/jre',
-       Environment: 'CATALINA_PID=/opt/tomcat/temp/tomcat.pid',
-       Environment: 'CATALINA_HOME=/opt/tomcat',
-       Environment: 'CATALINA_BASE=/opt/tomcat',
-       Environment: 'CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC',
-       Environment: 'JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom',
-
-       ExecStart: '/opt/tomcat/bin/startup.sh',
-       ExecStop: '/bin/kill -15 $MAINPID',
-
-       User: 'tomcat',
-       Group: 'tomcat',
-       Umask: '0007',
-       RestartSec: '10',
-       Restart: 'always',
-     },
-     Install: {
-       WantedBy: 'multi-user.target',
-     },
-   })
-  action :create
+template '/etc/systemd/system/tomcat.service' do
+  source 'tomcat.erb'
+  owner 'root'
+  group 'root'
+  mode '0644'
+  action
 end
 
 service 'tomcat' do
  action [:enable, :start]
- subscribes :reload,'systemd_unit[tomcat.service]', :immediately
+ subscribes :reload,'template[/etc/systemd/systemd/tomcat.service]', :immediately
 end
