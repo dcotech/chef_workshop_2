@@ -19,4 +19,4 @@ chef_version '>= 12.1' if respond_to?(:chef_version)
 #
 # source_url 'https://github.com/<insert_org_here>/lcd_tomcat'
 
-depends 'tomcat', '= 3.0.0'
+#depends 'tomcat', '= 3.0.0'
